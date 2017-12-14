@@ -27,7 +27,15 @@ StatsTools::StatsArray<float> vals(10); // max 10 elements
 //MQTT mq;
 
 const int transmitNotifierPin = B4;
+const int regulatorEnablePin = D2;
+const int maxbotixEnablePin = D4;
 int txCount = 0;
+
+void enableSensors(const bool enable)
+{
+    digitalWrite(regulatorEnablePin, enable);
+    digitalWrite(maxbotixEnablePin, enable);
+}
 
 float GetTrialAverage(UltrasonicSensor &sensor, int numTrials)
 {
@@ -44,6 +52,9 @@ float GetTrialAverage(UltrasonicSensor &sensor, int numTrials)
 
 int Reading(String str)
 {
+    enableSensors(true);
+    delay(100);
+
     float cheapDist_cm = GetTrialAverage(cheapSensor, 10);
     Serial.print("Cheap: ");Serial.println(cheapDist_cm/2.54);
     delay(500);
@@ -66,6 +77,7 @@ int Reading(String str)
     delay(10);
     digitalWrite(transmitNotifierPin, LOW);
 
+    enableSensors(false);
     return 0;
 }
 
@@ -89,6 +101,11 @@ void setup()
 
     pinMode(transmitNotifierPin, OUTPUT);
     digitalWrite(transmitNotifierPin, LOW);
+
+    pinMode(regulatorEnablePin, OUTPUT);
+    pinMode(maxbotixEnablePin, OUTPUT);
+
+    enableSensors(false);
 
     //Cellular.off(); // REMEMBER THAT I AM HERE
     //RGB.control(true);
